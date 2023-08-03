@@ -1,25 +1,20 @@
 import app, { init } from "@/app";
-import { prisma } from "@/config";
 import faker from "@faker-js/faker";
 import { TicketStatus } from "@prisma/client";
-import e from "express";
 import httpStatus from "http-status";
 import * as jwt from "jsonwebtoken";
 import supertest from "supertest";
 import {
   createEnrollmentWithAddress,
   createUser,
-  createTicketType,
   createTicket,
   createPayment,
-  generateCreditCardData,
   createTicketTypeWithHotel,
   createTicketTypeRemote,
   createHotel,
   createRoomWithHotelId,
 } from "../factories";
 import { cleanCache, cleanDb, generateValidToken } from "../helpers";
-import redis from "@/config/redis";
 
 beforeAll(async () => {
   await init();
@@ -28,11 +23,6 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await cleanDb();
-});
-
-afterAll(async () => {
-  await cleanCache();
-  redis.quit();
 });
 
 const server = supertest(app);
