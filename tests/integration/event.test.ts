@@ -2,11 +2,18 @@ import app, { init } from "@/app";
 import httpStatus from "http-status";
 import supertest from "supertest";
 import { createEvent } from "../factories";
-import { cleanDb } from "../helpers";
+import { cleanCache, cleanDb } from "../helpers";
+import redis from "@/config/redis";
 
 beforeAll(async () => {
   await init();
   await cleanDb();
+  await cleanCache();
+});
+
+afterAll(async () => {
+  await cleanCache();
+  redis.quit();
 });
 
 const server = supertest(app);
