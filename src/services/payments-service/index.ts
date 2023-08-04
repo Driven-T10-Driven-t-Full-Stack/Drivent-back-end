@@ -34,7 +34,7 @@ async function paymentProcess(ticketId: number, userId: number, cardData: CardPa
 
   const paymentData = {
     ticketId,
-    value: ticket.TicketType.price,
+    value: cardData.totalPrice,
     cardIssuer: cardData.issuer,
     cardLastDigits: cardData.number.toString().slice(-4),
   };
@@ -51,7 +51,8 @@ export type CardPaymentParams = {
   number: number,
   name: string,
   expirationDate: Date,
-  cvv: number
+  cvv: number,
+  totalPrice: number
 }
 
 const paymentService = {
