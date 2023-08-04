@@ -1,8 +1,9 @@
 import { ApplicationError } from "@/protocols";
 
-export function cannotListHotelsError(): ApplicationError {
+export function cannotListHotelsError(message?: string): ApplicationError {
+  const errorMsg = message || "Cannot list hotels!"
   return {
-    name: "cannotListHotelsError",
-    message: "Cannot list hotels!",
+    name: 'cannotListHotelsError',
+    message: errorMsg,
   };
 }
