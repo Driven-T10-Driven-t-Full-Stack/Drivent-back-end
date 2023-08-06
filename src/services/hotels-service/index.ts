@@ -1,8 +1,10 @@
-import hotelRepository from "@/repositories/hotel-repository";
-import enrollmentRepository from "@/repositories/enrollment-repository";
-import ticketRepository from "@/repositories/ticket-repository";
-import { notFoundError } from "@/errors";
-import { cannotListHotelsError } from "@/errors/cannot-list-hotels-error";
+import hotelRepository from '@/repositories/hotel-repository';
+import enrollmentRepository from '@/repositories/enrollment-repository';
+import ticketRepository from '@/repositories/ticket-repository';
+import { notFoundError } from '@/errors';
+import { cannotListHotelsError } from '@/errors/cannot-list-hotels-error';
+import { Booking } from '@prisma/client';
+import roomRepository from '../../repositories/room-repository';
 
 async function listHotels(userId: number) {
   //Tem enrollment?
@@ -14,12 +16,12 @@ async function listHotels(userId: number) {
   const ticket = await ticketRepository.findTicketByEnrollmentId(enrollment.id);
 
   //Não tem ticket ou não foi pago
-  if (!ticket || ticket.status === "RESERVED") {
+  if (!ticket || ticket.status === 'RESERVED') {
     throw cannotListHotelsError();
   }
   //Serviço não oferecido pelo ticket
   if (ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
-    throw cannotListHotelsError("Service not included.");
+    throw cannotListHotelsError('Service not included.');
   }
 }
 
@@ -27,17 +29,66 @@ async function getHotels(userId: number) {
   await listHotels(userId);
 
   const hotels = await hotelRepository.findHotels();
-  return hotels;
+  //new properties
+  const hotelIds = hotels.map((hotel) => hotel.id);
+  const roomCapacities = await hotelRepository.getTotalCapacitiesByHotelIds(hotelIds);
+
+  const hotelsWithRoomCapacity = hotels.map((hotel) => {
+    const capacitySum = roomCapacities.find((capacity) => capacity.hotelId === hotel.id);
+    const { Rooms, ...hotelInfo } = hotel;
+    const accomodationTypes = countRoomsByCapacity(Rooms);
+    const bookedCount = Rooms.reduce((totalBookings, room) => totalBookings + room.Booking.length, 0);
+    return {
+      ...hotelInfo,
+      availableRoomCapacity: capacitySum?._sum?.capacity - bookedCount || 0,
+      accomodationTypes
+    };
+  });
+
+  return hotelsWithRoomCapacity;
+}
+
+function countRoomsByCapacity(
+  rooms: {
+    capacity: number;
+    Booking: Booking[];
+  }[],
+) {
+  let single = false;
+  let double = false;
+  let triple = false;
+
+  for (const room of rooms) {
+    if (room.capacity === 1) {
+      single = true;
+    } else if (room.capacity === 2) {
+      double = true;
+    } else if (room.capacity === 3) {
+      triple = true;
+    }
+  }
+
+  return { single, double, triple };
 }
 
 async function getHotelsWithRooms(userId: number, hotelId: number) {
   await listHotels(userId);
   const hotel = await hotelRepository.findRoomsByHotelId(hotelId);
-
   if (!hotel) {
     throw notFoundError();
   }
-  return hotel;
+  const roomIds = hotel.Rooms.map((room) => room.id);
+
+  //new properties
+  const roomCapacities = await roomRepository.roomCapacityByRoomIds(roomIds)
+
+  const mergedRooms = hotel.Rooms.map((room) => {
+    const matchingCapacity = roomCapacities.find((capacity) => capacity.roomId === room.id);
+    const count = matchingCapacity ? matchingCapacity._count : 0;
+    return { ...room, bookings: count };
+  });  
+  
+  return mergedRooms;
 }
 
 const hotelService = {
