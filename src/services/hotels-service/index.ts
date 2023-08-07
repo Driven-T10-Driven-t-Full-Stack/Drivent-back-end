@@ -88,7 +88,7 @@ async function getHotelsWithRooms(userId: number, hotelId: number) {
     return { ...room, bookings: count };
   });  
   
-  return mergedRooms;
+  return {...hotel, Rooms: mergedRooms};
 }
 
 const hotelService = {
