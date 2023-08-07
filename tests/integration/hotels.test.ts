@@ -98,6 +98,12 @@ describe("GET /hotels", () => {
           image: createdHotel.image,
           createdAt: createdHotel.createdAt.toISOString(),
           updatedAt: createdHotel.updatedAt.toISOString(),
+          availableRoomCapacity: expect.any(Number),
+          accomodationTypes: {
+            double: expect.any(Boolean),
+            single: expect.any(Boolean),
+            triple: expect.any(Boolean),
+          },
         },
       ]);
     });
@@ -215,6 +221,7 @@ describe("GET /hotels/:hotelId", () => {
             hotelId: createdHotel.id,
             createdAt: createdRoom.createdAt.toISOString(),
             updatedAt: createdRoom.updatedAt.toISOString(),
+            bookings: expect.any(Number),
           },
         ],
       });
