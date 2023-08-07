@@ -2,11 +2,12 @@ import app, { init } from "@/app";
 import httpStatus from "http-status";
 import supertest from "supertest";
 import { createEvent } from "../factories";
-import { cleanDb } from "../helpers";
+import { cleanCache, cleanDb } from "../helpers";
 
 beforeAll(async () => {
   await init();
   await cleanDb();
+  await cleanCache();
 });
 
 const server = supertest(app);

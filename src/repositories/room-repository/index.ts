@@ -1,4 +1,4 @@
-import { prisma } from '@/config';
+import { prisma } from "@/config";
 
 async function findAllByHotelId(hotelId: number) {
   return prisma.room.findMany({
@@ -19,7 +19,7 @@ async function findById(roomId: number) {
 async function roomCapacityByRoomIds(roomIds: number[]) {
   return prisma.booking.groupBy({
     where: { roomId: { in: roomIds } },
-    by: ['roomId'],
+    by: ["roomId"],
     _count: true,
   });
 }

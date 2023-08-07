@@ -1,7 +1,7 @@
-import { prisma } from '@/config';
+import { prisma } from "@/config";
 
 async function findHotels() {
-  return prisma.hotel.findMany({ include: { Rooms: { select: { capacity:true, Booking: true } } } });
+  return prisma.hotel.findMany({ include: { Rooms: { select: { capacity: true, Booking: true } } } });
 }
 
 async function findRoomsByHotelId(hotelId: number) {
@@ -18,7 +18,7 @@ async function findRoomsByHotelId(hotelId: number) {
 async function getTotalCapacitiesByHotelIds(hotelIds: number[]) {
   return prisma.room.groupBy({
     where: { hotelId: { in: hotelIds } },
-    by: ['hotelId'],
+    by: ["hotelId"],
     _sum: { capacity: true },
   });
 }

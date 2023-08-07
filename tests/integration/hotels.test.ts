@@ -1,27 +1,24 @@
 import app, { init } from "@/app";
-import { prisma } from "@/config";
 import faker from "@faker-js/faker";
 import { TicketStatus } from "@prisma/client";
-import e from "express";
 import httpStatus from "http-status";
 import * as jwt from "jsonwebtoken";
 import supertest from "supertest";
 import {
   createEnrollmentWithAddress,
   createUser,
-  createTicketType,
   createTicket,
   createPayment,
-  generateCreditCardData,
   createTicketTypeWithHotel,
   createTicketTypeRemote,
   createHotel,
   createRoomWithHotelId,
 } from "../factories";
-import { cleanDb, generateValidToken } from "../helpers";
+import { cleanCache, cleanDb, generateValidToken } from "../helpers";
 
 beforeAll(async () => {
   await init();
+  await cleanCache();
 });
 
 beforeEach(async () => {
@@ -100,8 +97,14 @@ describe("GET /hotels", () => {
           name: createdHotel.name,
           image: createdHotel.image,
           createdAt: createdHotel.createdAt.toISOString(),
-          updatedAt: createdHotel.updatedAt.toISOString()
-        }
+          updatedAt: createdHotel.updatedAt.toISOString(),
+          availableRoomCapacity: expect.any(Number),
+          accomodationTypes: {
+            double: expect.any(Boolean),
+            single: expect.any(Boolean),
+            triple: expect.any(Boolean),
+          },
+        },
       ]);
     });
 
@@ -210,14 +213,17 @@ describe("GET /hotels/:hotelId", () => {
         image: createdHotel.image,
         createdAt: createdHotel.createdAt.toISOString(),
         updatedAt: createdHotel.updatedAt.toISOString(),
-        Rooms: [{
-          id: createdRoom.id,
-          name: createdRoom.name,
-          capacity: createdRoom.capacity,
-          hotelId: createdHotel.id,
-          createdAt: createdRoom.createdAt.toISOString(),
-          updatedAt: createdRoom.updatedAt.toISOString(),
-        }]
+        Rooms: [
+          {
+            id: createdRoom.id,
+            name: createdRoom.name,
+            capacity: createdRoom.capacity,
+            hotelId: createdHotel.id,
+            createdAt: createdRoom.createdAt.toISOString(),
+            updatedAt: createdRoom.updatedAt.toISOString(),
+            bookings: expect.any(Number),
+          },
+        ],
       });
     });
 
@@ -235,17 +241,14 @@ describe("GET /hotels/:hotelId", () => {
 
       expect(response.status).toEqual(httpStatus.OK);
 
-      expect(response.body).toEqual(
-        {
-          id: createdHotel.id,
-          name: createdHotel.name,
-          image: expect.any(String),
-          createdAt: createdHotel.createdAt.toISOString(),
-          updatedAt: createdHotel.updatedAt.toISOString(),
-          Rooms: [],
-        }
-      );
+      expect(response.body).toEqual({
+        id: createdHotel.id,
+        name: createdHotel.name,
+        image: expect.any(String),
+        createdAt: createdHotel.createdAt.toISOString(),
+        updatedAt: createdHotel.updatedAt.toISOString(),
+        Rooms: [],
+      });
     });
   });
 });
-
