@@ -58,8 +58,8 @@ async function main() {
     }
   }
 
-  console.log({ activities });
   console.log({ event });
+  console.log({ activities });
 }
 
 main()
