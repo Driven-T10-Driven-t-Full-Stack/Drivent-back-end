@@ -4,14 +4,6 @@ import enrollmentRepository from "@/repositories/enrollment-repository";
 import { notFoundError, paymentRequiredError } from "@/errors";
 
 async function getAllActivities(userId: number) {
-  const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
-  if (!enrollment) {
-    throw notFoundError();
-  }
-  const ticket = await ticketRepository.findTicketByEnrollmentId(enrollment.id);
-  if (ticket.status !== "PAID") {
-    throw paymentRequiredError();
-  }
   const activities = await activityRepository.getAllActivities();
   return activities;
 }
