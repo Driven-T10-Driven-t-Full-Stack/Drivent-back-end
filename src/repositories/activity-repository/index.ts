@@ -24,15 +24,16 @@ async function getAllActivities() {
     },
   });
   const result = activities.map((e, index) => {
+    const activityCount = countActivities[index]?._count?.activityId || 0;
     const object = {
       id: e.id,
-      name: e.id,
+      name: e.name,
       local: e.local,
-      capacity: e.capacity - countActivities[index]._count.activityId,
+      capacity: e.capacity - activityCount,
       startedTime: e.startedTime,
       finishedTime: e.finishedTime,
     };
-    return object;
+      return object;
   });
   return result;
 }
