@@ -1,3 +1,5 @@
+import { object } from "joi";
+
 export type ApplicationError = {
   name: string;
   message: string;

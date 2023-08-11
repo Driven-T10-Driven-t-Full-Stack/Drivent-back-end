@@ -25,6 +25,14 @@ async function main() {
       eventId: 1, 
     },
     {
+      name: "Navegando no Mundo do React: Components são de comer?",
+      startedTime: dayjs('2023-08-10').add(28, "days").set('hour', 14).toDate(),
+      finishedTime: dayjs('2023-08-10').add(28, "days").set('hour', 16).toDate(),
+      local: "PRINCIPAL",
+      capacity: 25,
+      eventId: 1, 
+    },
+    {
       name: "Construindo Resiliência em Tempos de Mudança: Estratégias para Lidar com Desafios",
       startedTime: dayjs('2023-08-10').add(29, "days").set('hour', 10).toDate(),
       finishedTime: dayjs('2023-08-10').add(29, "days").set('hour', 12).toDate(),
