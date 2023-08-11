@@ -10,11 +10,15 @@ export async function getCertificate(req: AuthenticatedRequest, res: Response) {
 
     const { userId } = req
 
+    function formatCPF(cpf:string){
+        const formattedCPF = cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4')
+        return(formattedCPF)
+    }
+
     try {
         const user = await enrollmentRepository.findWithAddressByUserId(userId)
         const event = await eventRepository.findFirst()
         const ticket = await ticketService.getTicketByUserId(user.id)
-        
         const startDate = dayjs(event.startsAt).format('DD/MM/YYYY')
         const endDate = dayjs(event.endsAt).format('DD/MM/YYYY')
 
@@ -32,7 +36,7 @@ export async function getCertificate(req: AuthenticatedRequest, res: Response) {
         doc.fontSize(14).text(`Certificamos, para todos os devidos fins, de que a(o):`, { align: 'center' });
         doc.translate(0, 20);
         doc.font('Helvetica').fontSize(80).text(`${user.name}`, { align: 'center' });
-        doc.fontSize(14).text(`Com documento ${user.cpf} participou do evento ${event.title}, de forma ${ticket.TicketType.isRemote ? "Remoto" : "Presencial"}, entre os dias ${startDate} e ${endDate}`);
+        doc.fontSize(14).text(`Com documento ${formatCPF(user.cpf)} participou do evento ${event.title}, de forma ${ticket.TicketType.isRemote ? "Remoto" : "Presencial"}, entre os dias ${startDate} e ${endDate}`);
 
         const leftSpacingPercentage = 0.4; // 50%
         const maxWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
