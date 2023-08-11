@@ -17,7 +17,7 @@ async function checkEnrollmentTicket(userId: number) {
 }
 
 async function checkValidBooking(roomId: number) {
-  const room = await roomRepository.findById(roomId);
+  const room = await roomRepository.findById(roomId); // ROOM CONTÉM HOTELID!!!!! usar embaixo
   const bookings = await bookingRepository.findByRoomId(roomId);
 
   if (!room) {
@@ -26,21 +26,23 @@ async function checkValidBooking(roomId: number) {
   if (room.capacity <= bookings.length) {
     throw cannotBookingError();
   }
+  return bookings;
 }
 
 async function getBooking(userId: number) {
   const booking = await bookingRepository.findByUserId(userId);
+  const totalBookings = await bookingRepository.findByRoomId(booking.Room.id);
   if (!booking) {
     throw notFoundError();
   }
 
-  return booking;
+  return { ...booking,  totalBookings:totalBookings.length};
 }
 
 async function bookingRoomById(userId: number, roomId: number) {
   await checkEnrollmentTicket(userId);
-  await checkValidBooking(roomId);
-
+  const bookings = await checkValidBooking(roomId);
+  //receber o hotelId de alguma forma e alterar variáveis armazenadas no redis (3 variáveis?????)
   return bookingRepository.create({ roomId, userId });
 }
 

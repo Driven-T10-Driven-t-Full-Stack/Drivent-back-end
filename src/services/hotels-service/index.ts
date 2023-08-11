@@ -28,11 +28,11 @@ async function listHotels(userId: number) {
 
 async function getHotels(userId: number) {
   const cacheKey = "hotels:1";
-  const cachedHotels = await redisClient.get(cacheKey);
-  if (cachedHotels) {
-    const hotels = JSON.parse(cachedHotels);    
-    return hotels;
-  } else {
+  //const cachedHotels = await redisClient.get(cacheKey);
+ // if (cachedHotels) {
+  //  const hotels = JSON.parse(cachedHotels);    
+   // return hotels;
+  //} else {
     await listHotels(userId);
     const hotels = await hotelRepository.findHotels();
 
@@ -52,7 +52,7 @@ async function getHotels(userId: number) {
       };
     });
 
-    await redisClient.set(cacheKey, JSON.stringify(hotelsWithRoomCapacity));
+    //await redisClient.set(cacheKey, JSON.stringify(hotelsWithRoomCapacity));
     return hotelsWithRoomCapacity;
   }
 
@@ -78,14 +78,14 @@ async function getHotels(userId: number) {
 
     return { single, double, triple };
   }
-}
+//}
 
 async function getHotelsWithRooms(userId: number, hotelId: number) {
   const cacheKey = `hotel:${hotelId}`;
-  const cachedHotel = await redisClient.get(cacheKey);
-  if (cachedHotel) {
-    return JSON.parse(cachedHotel);
-  } else {
+ // const cachedHotel = await redisClient.get(cacheKey);
+ // if (cachedHotel) {
+  //  return JSON.parse(cachedHotel);
+  //} else {
     await listHotels(userId);
     const hotel = await hotelRepository.findRoomsByHotelId(hotelId);
 
@@ -101,10 +101,10 @@ async function getHotelsWithRooms(userId: number, hotelId: number) {
       return { ...room, bookings: count };
     });
 
-    await redisClient.set(cacheKey, JSON.stringify({ ...hotel, Rooms: mergedRooms }));
+    //await redisClient.set(cacheKey, JSON.stringify({ ...hotel, Rooms: mergedRooms }));
     return { ...hotel, Rooms: mergedRooms };
   }
-}
+//}
 
 const hotelService = {
   getHotels,
