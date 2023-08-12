@@ -2,10 +2,10 @@ import { notFoundError } from "@/errors";
 import ticketRepository from "@/repositories/ticket-repository";
 import enrollmentRepository from "@/repositories/enrollment-repository";
 import { TicketStatus } from "@prisma/client";
+import activityRepository from "@/repositories/activity-repository";
 
 async function getTicketTypes() {
   const ticketTypes = await ticketRepository.findTicketTypes();
-
   if (!ticketTypes) {
     throw notFoundError();
   }
@@ -34,12 +34,22 @@ async function createTicket(userId: number, ticketTypeId: number) {
   const ticketData = {
     ticketTypeId,
     enrollmentId: enrollment.id,
-    status: TicketStatus.RESERVED
+    status: TicketStatus.RESERVED,
   };
 
   await ticketRepository.createTicket(ticketData);
 
   const ticket = await ticketRepository.findTicketByEnrollmentId(enrollment.id);
+
+  const activities = await activityRepository.getAllActivities();
+
+  if (ticket.TicketType.isRemote === true) {
+    for (let i = 0; i < activities.length; i++) {
+      if (activities[i].isRemote === true) {
+        await activityRepository.createActivity(userId, activities[i].id, true);
+      }
+    }
+  }
 
   return ticket;
 }
@@ -47,7 +57,7 @@ async function createTicket(userId: number, ticketTypeId: number) {
 const ticketService = {
   getTicketTypes,
   getTicketByUserId,
-  createTicket
+  createTicket,
 };
 
 export default ticketService;

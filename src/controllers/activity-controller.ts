@@ -37,8 +37,9 @@ export async function getUserActivities(req: AuthenticatedRequest, res: Response
 export async function createActivity(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
   const activityId = Number(req.body.activityId);
+  const { isRemote } = req.body;
   try {
-    await activityService.createUserActivity(userId, activityId);
+    await activityService.createUserActivity(userId, activityId, isRemote);
     res.sendStatus(httpStatus.CREATED);
   } catch (error) {
     return res.sendStatus(httpStatus.BAD_REQUEST);

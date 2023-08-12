@@ -29,81 +29,81 @@ async function listHotels(userId: number) {
 async function getHotels(userId: number) {
   const cacheKey = "hotels:1";
   //const cachedHotels = await redisClient.get(cacheKey);
- // if (cachedHotels) {
-  //  const hotels = JSON.parse(cachedHotels);    
-   // return hotels;
+  // if (cachedHotels) {
+  //  const hotels = JSON.parse(cachedHotels);
+  // return hotels;
   //} else {
-    await listHotels(userId);
-    const hotels = await hotelRepository.findHotels();
+  await listHotels(userId);
+  const hotels = await hotelRepository.findHotels();
 
-    //new properties
-    const hotelIds = hotels.map((hotel) => hotel.id);
-    const roomCapacities = await hotelRepository.getTotalCapacitiesByHotelIds(hotelIds);
+  //new properties
+  const hotelIds = hotels.map((hotel) => hotel.id);
+  const roomCapacities = await hotelRepository.getTotalCapacitiesByHotelIds(hotelIds);
 
-    const hotelsWithRoomCapacity = hotels.map((hotel) => {
-      const capacitySum = roomCapacities.find((capacity) => capacity.hotelId === hotel.id);
-      const { Rooms, ...hotelInfo } = hotel;
-      const accomodationTypes = countRoomsByCapacity(Rooms);
-      const bookedCount = Rooms.reduce((totalBookings, room) => totalBookings + room.Booking.length, 0);
-      return {
-        ...hotelInfo,
-        availableRoomCapacity: capacitySum?._sum?.capacity - bookedCount || 0,
-        accomodationTypes,
-      };
-    });
+  const hotelsWithRoomCapacity = hotels.map((hotel) => {
+    const capacitySum = roomCapacities.find((capacity) => capacity.hotelId === hotel.id);
+    const { Rooms, ...hotelInfo } = hotel;
+    const accomodationTypes = countRoomsByCapacity(Rooms);
+    const bookedCount = Rooms.reduce((totalBookings, room) => totalBookings + room.Booking.length, 0);
+    return {
+      ...hotelInfo,
+      availableRoomCapacity: capacitySum?._sum?.capacity - bookedCount || 0,
+      accomodationTypes,
+    };
+  });
 
-    //await redisClient.set(cacheKey, JSON.stringify(hotelsWithRoomCapacity));
-    return hotelsWithRoomCapacity;
-  }
+  //await redisClient.set(cacheKey, JSON.stringify(hotelsWithRoomCapacity));
+  return hotelsWithRoomCapacity;
+}
 
-  function countRoomsByCapacity(
-    rooms: {
-      capacity: number;
-      Booking: Booking[];
-    }[],
-  ) {
-    let single = false;
-    let double = false;
-    let triple = false;
+function countRoomsByCapacity(
+  rooms: {
+    capacity: number;
+    Booking: Booking[];
+  }[],
+) {
+  let single = false;
+  let double = false;
+  let triple = false;
 
-    for (const room of rooms) {
-      if (room.capacity === 1) {
-        single = true;
-      } else if (room.capacity === 2) {
-        double = true;
-      } else if (room.capacity === 3) {
-        triple = true;
-      }
+  for (const room of rooms) {
+    if (room.capacity === 1) {
+      single = true;
+    } else if (room.capacity === 2) {
+      double = true;
+    } else if (room.capacity === 3) {
+      triple = true;
     }
-
-    return { single, double, triple };
   }
+
+  return { single, double, triple };
+}
 //}
 
 async function getHotelsWithRooms(userId: number, hotelId: number) {
   const cacheKey = `hotel:${hotelId}`;
- // const cachedHotel = await redisClient.get(cacheKey);
- // if (cachedHotel) {
+  // const cachedHotel = await redisClient.get(cacheKey);
+  // if (cachedHotel) {
   //  return JSON.parse(cachedHotel);
   //} else {
-    await listHotels(userId);
-    const hotel = await hotelRepository.findRoomsByHotelId(hotelId);
+  await listHotels(userId);
+  const hotel = await hotelRepository.findRoomsByHotelId(hotelId);
 
-    if (!hotel) throw notFoundError();
-    const roomIds = hotel.Rooms.map((room) => room.id);
+  if (!hotel) throw notFoundError();
+  const roomIds = hotel.Rooms.map((room) => room.id);
 
-    //new properties
-    const roomCapacities = await roomRepository.roomCapacityByRoomIds(roomIds);
+  //new properties
+  const roomCapacities = await roomRepository.roomCapacityByRoomIds(roomIds);
 
-    const mergedRooms = hotel.Rooms.map((room) => {
-      const matchingCapacity = roomCapacities.find((capacity) => capacity.roomId === room.id);
-      const count = matchingCapacity ? matchingCapacity._count : 0;
-      return { ...room, bookings: count };
-    });
+  const mergedRooms = hotel.Rooms.map((room) => {
+    const matchingCapacity = roomCapacities.find((capacity) => capacity.roomId === room.id);
+    const count = matchingCapacity ? matchingCapacity._count : 0;
+    return { ...room, bookings: count };
+  });
 
-    //await redisClient.set(cacheKey, JSON.stringify({ ...hotel, Rooms: mergedRooms }));
-    return { ...hotel, Rooms: mergedRooms };
-  }
+  //await redisClient.set(cacheKey, JSON.stringify({ ...hotel, Rooms: mergedRooms }));
+  return { ...hotel, Rooms: mergedRooms };
+}
 //}
 
 const hotelService = {
