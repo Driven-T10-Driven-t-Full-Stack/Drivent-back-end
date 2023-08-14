@@ -49,6 +49,5 @@ export async function getCertificate(req: AuthenticatedRequest, res: Response) {
     });
     doc.end();
   } catch (error) {
-
   }
 }
