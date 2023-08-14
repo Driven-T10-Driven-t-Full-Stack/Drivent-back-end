@@ -8,3 +8,4 @@ export * from "./hotels-router";
 export * from "./booking-router";
 export * from "./activity-router";
 export * from "./certificate-router";
+export * from "./auth-router";

@@ -20,6 +20,7 @@ import {
   activitiesRouter,
   certificateRouter
 } from "@/routers";
+import authRouter from "./routers/auth-router";
 
 const app = express();
 app
@@ -36,6 +37,7 @@ app
   .use("/booking", bookingRouter)
   .use("/activity", activitiesRouter)
   .use("/certificate", certificateRouter)
+  .use("/oauth", authRouter)
   .use(handleApplicationErrors);
 
 export function init(): Promise<Express> {
