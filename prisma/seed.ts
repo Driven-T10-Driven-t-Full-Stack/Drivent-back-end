@@ -112,6 +112,7 @@ async function main() {
       startedTime: dayjs('2023-08-10').add(28, "days").set('hour', 14).toDate(),
       finishedTime: dayjs('2023-08-10').add(28, "days").set('hour', 16).toDate(),
       local: "PRINCIPAL",
+      isRemote: false,
       capacity: 25,
       eventId: 1, 
     },
