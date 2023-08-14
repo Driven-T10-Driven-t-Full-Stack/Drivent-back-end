@@ -147,6 +147,7 @@ model Activity {
   startedTime  DateTime
   finishedTime DateTime
   local        String
+  isRemote     Boolean
   capacity     Int
   Event        Event          @relation(fields: [eventId], references: [id])
   eventId      Int
@@ -159,6 +160,7 @@ model UserActivity {
   id         Int      @id @default(autoincrement())
   User       User     @relation(fields: [userId], references: [id])
   userId     Int
+  isRemote   Boolean
   Activity   Activity @relation(fields: [activityId], references: [id])
   activityId Int
   createdAt  DateTime @default(now())
