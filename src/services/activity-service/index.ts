@@ -21,8 +21,8 @@ async function getUserActivities(userId: number) {
   return activities;
 }
 
-async function createUserActivity(userId: number, activityId: number) {
-  await activityRepository.createActivity(userId, activityId);
+async function createUserActivity(userId: number, activityId: number, isRemote: boolean) {
+  await activityRepository.createActivity(userId, activityId, isRemote);
   return;
 }
 

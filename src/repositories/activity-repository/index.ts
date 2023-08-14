@@ -9,6 +9,9 @@ async function getAllActivities() {
     orderBy: {
       activityId: "asc",
     },
+    where: {
+      isRemote: false,
+    }
   });
   const activities = await prisma.activity.findMany({
     select: {
@@ -16,6 +19,7 @@ async function getAllActivities() {
       name: true,
       local: true,
       capacity: true,
+      isRemote: true,
       startedTime: true,
       finishedTime: true,
     },
@@ -29,11 +33,12 @@ async function getAllActivities() {
       id: e.id,
       name: e.name,
       local: e.local,
-      capacity: e.capacity - activityCount,
+      isRemote: e.isRemote,
+      capacity: e.isRemote === true ? 0 : e.capacity - activityCount,
       startedTime: e.startedTime,
       finishedTime: e.finishedTime,
     };
-      return object;
+    return object;
   });
   return result;
 }
@@ -46,11 +51,12 @@ async function getUserActivities(userId: number) {
   });
 }
 
-async function createActivity(userId: number, activityId: number) {
+async function createActivity(userId: number, activityId: number, isRemote: boolean) {
   return await prisma.userActivity.create({
     data: {
       userId: userId,
       activityId: activityId,
+      isRemote: isRemote,
     },
   });
 }
